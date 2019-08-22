@@ -1,6 +1,6 @@
 "use strict";
 
-const canvas = document.getElementById("drawCanvas");
+const canvas = document.getElementById("real-canvas");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -12,13 +12,22 @@ if (canvas.getContext) {
     alert("ご使用のブラウザはcanvasに対応していません");
 }
 
+// 一時的なキャンバスを作り、mouseupイベントの時に本canvasにコピー
+// 理由は、drawCanvas関数でclearRectしなければならないので、その時に今まで書いたものを消さないため
+const tmp_canvas = document.createElement('canvas');
+const tmp_ctx = tmp_canvas.getContext('2d');
+tmp_canvas.id = "tmp-canvas";
+tmp_canvas.width = canvas.width;
+tmp_canvas.height = canvas.height;
+document.body.appendChild(tmp_canvas);
+
 // Todo 変えられるように
-ctx.lineWidth = 1;
-ctx.strokeStyle = "black";
+tmp_ctx.lineWidth = 1;
+tmp_ctx.strokeStyle = "black";
 
 //線の結合部分を滑らかにする
-ctx.lineJoin = "round";
-ctx.lineCap = "round";
+tmp_ctx.lineJoin = "round";
+tmp_ctx.lineCap = "round";
 
 /**
  * @param {Boolean} isMousePushed マウスが押されているかを表す、押されていない時にmousemoveイベントを発火しないための変数
@@ -27,18 +36,24 @@ ctx.lineCap = "round";
 let isMousePushed = false,
     points = [];
 
-canvas.addEventListener("mousedown", (e) => {
+tmp_canvas.addEventListener("mousedown", (e) => {
     isMousePushed = true;
 
     // pointsに現在のマウスの位置をpush
     points.push(getMousePosition(canvas, e));
 });
 
-canvas.addEventListener("mousemove", drawCanvas);
+tmp_canvas.addEventListener("mousemove", drawCanvas);
 
-canvas.addEventListener("mouseup", () => {
+tmp_canvas.addEventListener("mouseup", () => {
     // isMousePushedをfalseにし、mousemoveイベントを発火させないように
     isMousePushed = false;
+
+    // tmp_canvasに描いたものをcanvasにコピー
+    ctx.drawImage(tmp_canvas, 0, 0);
+
+    // tmp_canvasをclear
+    tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
 
     // 配列を空に
     points.length = 0;
@@ -51,21 +66,32 @@ function drawCanvas(e) {
     points.push(getMousePosition(canvas, e));
 
     // canvasをクリア
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    tmp_ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // もしpointsが3個以上無ければpoints[i+1]を参照できないので円を書いて代用
+    if (points.length < 3) {
+        const lastMousePosition = points[0];
+        tmp_ctx.beginPath();
+        tmp_ctx.arc(lastMousePosition.x, lastMousePosition.y, tmp_ctx.lineWidth / 2, 0, Math.PI * 2, !0);
+        tmp_ctx.fill();
+        tmp_ctx.closePath();
+
+        return;
+    }
 
     // pointsをもとに二次ベジェ曲線を引いていく
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
+    tmp_ctx.beginPath();
+    tmp_ctx.moveTo(points[0].x, points[0].y);
 
     let i;
     for (i = 1; i < points.length - 2; i++) {
         const cpx = (points[i].x + points[i + 1].x) / 2;
         const cpy = (points[i].y + points[i + 1].y) / 2;
-        ctx.quadraticCurveTo(points[i].x, points[i].y, cpx, cpy);
+        tmp_ctx.quadraticCurveTo(points[i].x, points[i].y, cpx, cpy);
     }
 
-    ctx.quadraticCurveTo(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
-    ctx.stroke();
+    tmp_ctx.quadraticCurveTo(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
+    tmp_ctx.stroke();
 }
 
 /**
