@@ -2,7 +2,11 @@
 
 const canvas = document.getElementById("real-canvas");
 canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.height = document.documentElement.clientHeight * 0.9;
+
+// メニューの高さを指定
+const menu = document.getElementsByClassName("menu");
+menu.height = window.innerWidth * 0.1;
 
 // もしブラウザがcanvasに対応していなければ処理を終了
 let ctx;

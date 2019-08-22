@@ -9,3 +9,40 @@ body {
         bottom: 0; 
         top: 0;
 }
+canvas {
+    border: solid 1px black;
+}
+.menu {
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1em;
+    z-index: 9999;
+}
+/* ケース */
+.eraser {
+	font-size: 30px;
+	position: relative;
+	margin: 0.1em 1em 0 0.6em;
+	width: 0.8em;
+	height: 1em;
+	background-color:#39a9d6;
+	border-radius: 0.1em;
+	-webkit-transform: rotate(180deg);
+	transform: rotate(180deg);
+}
+/* 本体 */
+.eraser::before {
+	content: "";
+	position: absolute;
+	top: 0.8em;
+	left: 0;
+	width: 0.6em;
+	height: 0.6em;
+	border: 0.1em solid #39a9d6;
+	border-radius: 0.1em;
+}
+.slidebar-container {
+    margin-bottom: 0.8em;
+}
