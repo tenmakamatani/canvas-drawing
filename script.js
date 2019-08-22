@@ -12,29 +12,26 @@ if (canvas.getContext) {
     alert("ご使用のブラウザはcanvasに対応していません");
 }
 
-// ラインの太さを10に
 // Todo 変えられるように
 ctx.lineWidth = 1;
 ctx.strokeStyle = "black";
 
+//線の結合部分を滑らかにする
+ctx.lineJoin = "round";
+ctx.lineCap = "round";
+
 /**
- * @param {boolean} isMousePushed マウスが押されているかを表す、押されていない時にmousemoveイベントを発火しないための変数
- * @param {int} beforeX 前回のmousemoveイベントが実行された時のx座標
- * @param {int} beforeY 前回のmousemoveイベントが実行された時のy座標
- * @param {int} currentX 現在のx座標
- * @param {int} currentY 現在のY座標
+ * @param {Boolean} isMousePushed マウスが押されているかを表す、押されていない時にmousemoveイベントを発火しないための変数
+ * @param {List[Object]} points 前回のmousedownイベントからのマウスの位置を保存しておく
 */
 let isMousePushed = false,
-    beforeX = 0,
-    beforeY = 0,
-    currentX = 0,
-    currentY = 0;
+    points = [];
 
 canvas.addEventListener("mousedown", (e) => {
     isMousePushed = true;
-    const mousePosition = getMousePosition(canvas, e);
-    beforeX = mousePosition.x;
-    beforeY = mousePosition.y;
+
+    // pointsに現在のマウスの位置をpush
+    points.push(getMousePosition(canvas, e));
 });
 
 canvas.addEventListener("mousemove", drawCanvas);
@@ -42,28 +39,33 @@ canvas.addEventListener("mousemove", drawCanvas);
 canvas.addEventListener("mouseup", () => {
     // isMousePushedをfalseにし、mousemoveイベントを発火させないように
     isMousePushed = false;
+
+    // 配列を空に
+    points.length = 0;
 })
 
 function drawCanvas(e) {
     // マウスが押されてなければ何もしない
     if (!isMousePushed) return;
 
-    // 現在のマウスの位置を取得
-    const mousePosition = getMousePosition(canvas, e);
-    console.log(beforeX, beforeY);
-    currentX = mousePosition.x;
-    currentY = mousePosition.y;
+    points.push(getMousePosition(canvas, e));
 
-    // 前回のマウスの位置から線を引く
+    // canvasをクリア
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // pointsをもとに二次ベジェ曲線を引いていく
     ctx.beginPath();
-    ctx.moveTo(beforeX, beforeY);
-    ctx.lineTo(currentX, currentY);
-    ctx.stroke();
-    ctx.closePath();
+    ctx.moveTo(points[0].x, points[0].y);
 
-    // beforeX, beforeY現在の位置に更新
-    beforeX = currentX;
-    beforeY = currentY;
+    let i;
+    for (i = 1; i < points.length - 2; i++) {
+        const cpx = (points[i].x + points[i + 1].x) / 2;
+        const cpy = (points[i].y + points[i + 1].y) / 2;
+        ctx.quadraticCurveTo(points[i].x, points[i].y, cpx, cpy);
+    }
+
+    ctx.quadraticCurveTo(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
+    ctx.stroke();
 }
 
 /**
