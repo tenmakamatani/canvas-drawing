@@ -12,12 +12,21 @@
 <body>
     <canvas id="real-canvas"></canvas>
     <div class="menu">
-        <div class="eraser"></div>
-        <div class="slidebar-container">
-            <input id="slidebar" type="range" value="1" min="1" max="10" step="0.1" oninput="console.log('1')">
-        </div>
+        <ul>
+            <li>
+                <button onClick="deleteAllCanvas();">全消去</button>
+            </li>
+        </ul>
     </div>
-    <script src="./script.js"></script>
+
+    <!-- setup canvas -->
+    <script src="./js/setup.js"></script>
+
+    <!-- draw line -->
+    <script src="./js/draw.js"></script>
+
+    <!-- clear all canvas -->
+    <script src="./js/clear.js"></script>
 </body>
 
 </html>
