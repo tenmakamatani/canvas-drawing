@@ -15,7 +15,6 @@ canvas {
 .menu {
     width: 100vw;
     margin-top: 1em;
-    z-index: 9999;
 }
 ul {
     display: flex;
