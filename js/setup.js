@@ -1,12 +1,9 @@
 "use strict";
 
 const canvas = document.getElementById("real-canvas");
-canvas.width = window.innerWidth;
-canvas.height = document.documentElement.clientHeight * 0.9;
-
-// メニューの高さを指定
-const menu = document.getElementsByClassName("menu");
-menu.height = window.innerWidth * 0.1;
+const canvasContainer = document.getElementById("canvas-container");
+canvas.width = canvasContainer.clientWidth;
+canvas.height = canvasContainer.clientHeight;
 
 // もしブラウザがcanvasに対応していなければ処理を終了
 let ctx;
@@ -23,7 +20,7 @@ const tmp_ctx = tmp_canvas.getContext('2d');
 tmp_canvas.id = "tmp-canvas";
 tmp_canvas.width = canvas.width;
 tmp_canvas.height = canvas.height;
-document.body.appendChild(tmp_canvas);
+canvasContainer.appendChild(tmp_canvas);
 
 // Todo 変えられるように
 tmp_ctx.lineWidth = 1;
